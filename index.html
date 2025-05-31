@@ -31,7 +31,7 @@ return false;
 <h2>Popis</h2>
 <p>Platforma Marketplace umožňuje uživatelům prodávat a nakupovat primárně oblečení, ale i jiné předměty prostřednictvím inzercí.</p>
 <p>Každý uživatel si při registraci vybere, zda si vytvoří profil <strong>prodejce</strong> nebo <strong>kupujícího</strong>. Každá role má na platformě jiné rozhraní a proto jeden profil uživatele nemůže být kupujícím a prodejcem zároveň. U všech uživatelů je třeba evidovat jejich <em>jméno</em>, <em>příjmení</em>, <em>telefonní číslo</em> a <em>datum narození</em>. Každému uživateli je také automaticky přiděleno unikátní identifikační číslo <em>id uzivatele</em>. Prodejci mohou vystavovat <strong>inzeráty</strong>, přičemž u každého inzerátu je nutné evidovat <em>název</em>, <em>cenu</em> a <em>datum vystavení</em> a nepovinně také <em>popis</em>. Pokud uživatel inzeruje <strong>kus oblečení</strong>, musí také uvést <em>velikost</em> a <em>kondici</em> na škále od 1 do 10. Oblečení se také řadí do <strong>kategorií</strong> (pánské/dámské/unisex/dětské) a uvádí se <strong>typ oblečení</strong>, například kalhoty, košile, kabát a tak dále. Kupující mají na stránce možnost inzeráty rezervovat. <strong>Rezervace</strong> slouží k blokaci inzerátu pro konkrétního kupujícího, tedy rezervovaná inzerce už není dostupná ostatním kupujícím. U rezervace se eviduje <em>datum od</em> a i <em>datum do</em>, pokud rezervace skončila. Také je důležitý <strong>stav rezervace</strong> (a <strong>Stav</strong>, který je číselník), který může nabývat hodnot probíhá, dokončena (úspěšně) nebo zrušena. Každá probíhající rezervace může být kdykoli zrušena kupujícím i prodávajícím. Kupující, kteří si s nákupem ještě nejsou úplně jistí si můžou libovolný inzerát uložit do <strong>oblíbených</strong> a případně si k němu připsat i <em>poznámku</em>. Marketplace také nově zavedl prémiovou funkci <strong>topování</strong>, kterou si můžou zakoupit prodávající a svůj inzerát tím propagovat a uživatelům jej zobrazovat na vyšší pozici na zdi. Prodávajícím je umožněno topování i darovat, tedy zakoupit topování na inzerát, který je inzerován někým jiným. U každého zakoupeného topování je vždy evidováno <em>datum od</em> a <em>datum do</em>.</p>
-<h2>Conceptual schema</h2>
+<h2>Konceptuální schéma</h2>
 <img src="conceptual_schema.png" alt="
 			Zde má být obrázek vašeho konceptuálního modelu.
                "><p>Ve schématu se nachází 2 smyčky. </p>
@@ -43,7 +43,7 @@ return false;
 <p>Smyčka <strong>kupujici</strong>-<strong>rezervace</strong>-<strong>inzerat</strong>-<strong>oblibene</strong>:</p>
 <p>Jedná se o smyčku kde si kupující může rezervovat inzerát, který zároveň má/nemá v oblíbených (a naopak). To vůbec nevadí, smyčka tedy nevytváří žádné problémy.</p>
 <p></p>
-<h2>Relační schema</h2>
+<h2>Relační schéma</h2>
 <img src="relational_schema.png" alt="
 			Zde má být obrázek vašeho relačního modelu.
                "><h2>Dotazy</h2>
@@ -393,7 +393,7 @@ WHERE cena &gt; 1000;</p>
 </li>
 <li>
 <p> Kód dotazu: <b><a name="D23">D23</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
-<p>Všichni Tomášové a Zdeňkové se rozhodli zlevnit svoje aktuálně dostupné inzeráty o 50%!</p>
+<p>Všichni Filipové a Zdeňkové se rozhodli zlevnit svoje aktuálně dostupné inzeráty o 50%!</p>
 <p class="sql">BEGIN;
 
 SELECT i.*
