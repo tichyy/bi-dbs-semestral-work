@@ -1,0 +1,706 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>BI-DBS.21 - Tadeáš Tichý (tichytad) </title>
+<link rel="stylesheet" type="text/css" href="./sproject_html.css">
+</head>
+<body>
+<script type="text/javascript">
+var display=0;
+function noComment(){
+var comments=document.getElementsByName("comment");
+if(display==1){
+	set_to='block';
+	display=0;
+}
+else{
+	set_to='none';
+	display=1;
+};
+for (i in comments){
+	el=comments[i].style; 
+	el.display=set_to;
+}
+return false;
+}
+</script><input type="button" value=" Vypnout / zapnout zobrazeni komentaru" onClick="return noComment();"><h3 class="course">BI-DBS.21 -            Databázové systémy,            B242</h3>
+<h3 class="author">Tadeáš Tichý ( tichytad )          Středa 9:15, Sudý týden, paralelka 1250788072905</h3>
+<h4 class="author"><a href="mailto:tichytad@fit.cvut.cz">tichytad@fit.cvut.cz</a></h4>
+<p class="declaration">I declare that I have developed my semestral work independently. All the sources I used are listed in the section References.</p>
+<h1>Marketplace</h1>
+<h2>Popis</h2>
+<p>Platforma Marketplace umožňuje uživatelům prodávat a nakupovat primárně oblečení, ale i jiné předměty prostřednictvím inzercí.</p>
+<p>Každý uživatel si při registraci vybere, zda si vytvoří profil <strong>prodejce</strong> nebo <strong>kupujícího</strong>. Každá role má na platformě jiné rozhraní a proto jeden profil uživatele nemůže být kupujícím a prodejcem zároveň. U všech uživatelů je třeba evidovat jejich <em>jméno</em>, <em>příjmení</em>, <em>telefonní číslo</em> a <em>datum narození</em>. Každému uživateli je také automaticky přiděleno unikátní identifikační číslo <em>id uzivatele</em>. Prodejci mohou vystavovat <strong>inzeráty</strong>, přičemž u každého inzerátu je nutné evidovat <em>název</em>, <em>cenu</em> a <em>datum vystavení</em> a nepovinně také <em>popis</em>. Pokud uživatel inzeruje <strong>kus oblečení</strong>, musí také uvést <em>velikost</em> a <em>kondici</em> na škále od 1 do 10. Oblečení se také řadí do <strong>kategorií</strong> (pánské/dámské/unisex/dětské) a uvádí se <strong>typ oblečení</strong>, například kalhoty, košile, kabát a tak dále. Kupující mají na stránce možnost inzeráty rezervovat. <strong>Rezervace</strong> slouží k blokaci inzerátu pro konkrétního kupujícího, tedy rezervovaná inzerce už není dostupná ostatním kupujícím. U rezervace se eviduje <em>datum od</em> a i <em>datum do</em>, pokud rezervace skončila. Také je důležitý <strong>stav rezervace</strong> (a <strong>Stav</strong>, který je číselník), který může nabývat hodnot probíhá, dokončena (úspěšně) nebo zrušena. Každá probíhající rezervace může být kdykoli zrušena kupujícím i prodávajícím. Kupující, kteří si s nákupem ještě nejsou úplně jistí si můžou libovolný inzerát uložit do <strong>oblíbených</strong> a případně si k němu připsat i <em>poznámku</em>. Marketplace také nově zavedl prémiovou funkci <strong>topování</strong>, kterou si můžou zakoupit prodávající a svůj inzerát tím propagovat a uživatelům jej zobrazovat na vyšší pozici na zdi. Prodávajícím je umožněno topování i darovat, tedy zakoupit topování na inzerát, který je inzerován někým jiným. U každého zakoupeného topování je vždy evidováno <em>datum od</em> a <em>datum do</em>.</p>
+<h2>Conceptual schema</h2>
+<img src="conceptual_schema.png" alt="
+			Zde má být obrázek vašeho konceptuálního modelu.
+               "><p>Ve schématu se nachází 2 smyčky. </p>
+<p></p>
+<p>Smyčka <strong>prodejce</strong>-<strong>topovani</strong>-<strong>inzerat</strong>:</p>
+<p>Smyčka může způsobovat problém, kdy prodejce topuje inzerát,  který je inzerován jiným prodejcem než je on sám. </p>
+<p>To nevadí, protože topovaní je možné mezi prodejci darovat. Smyčka nevytváří žádné problémy.</p>
+<p></p>
+<p>Smyčka <strong>kupujici</strong>-<strong>rezervace</strong>-<strong>inzerat</strong>-<strong>oblibene</strong>:</p>
+<p>Jedná se o smyčku kde si kupující může rezervovat inzerát, který zároveň má/nemá v oblíbených (a naopak). To vůbec nevadí, smyčka tedy nevytváří žádné problémy.</p>
+<p></p>
+<h2>Relační schema</h2>
+<img src="relational_schema.png" alt="
+			Zde má být obrázek vašeho relačního modelu.
+               "><h2>Dotazy</h2>
+<ol>
+<li>
+<p> Kód dotazu: <b><a name="D1">D1</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Jméno, příjmení a id všech prodejců, kteří zveřejnili alespoň 1 inzerát. Výsledek seřaď podle id_uzivatel vzestupně. (Kategorie J - 3 různé formulace)</p>
+<p class="ra">{inzerat*&gt;prodejce*&gt;uzivatelsky_ucet}[id_uzivatel, jmeno, prijmeni]</p>
+<p class="sql">SELECT DISTINCT u.jmeno, u.prijmeni, u.id_uzivatel
+FROM inzerat
+         JOIN prodejce USING (id_uzivatel)
+         JOIN uzivatelsky_ucet u USING (id_uzivatel)
+ORDER BY id_uzivatel;
+
+
+SELECT u.jmeno, u.prijmeni, u.id_uzivatel
+FROM uzivatelsky_ucet u
+WHERE EXISTS (SELECT 1
+              FROM inzerat i
+                       JOIN prodejce USING (id_uzivatel)
+              WHERE u.id_uzivatel = i.id_uzivatel)
+ORDER BY id_uzivatel;
+
+
+SELECT jmeno, prijmeni, id_uzivatel
+FROM uzivatelsky_ucet u
+WHERE id_uzivatel IN (SELECT id_uzivatel
+                      FROM prodejce
+                               JOIN inzerat USING (id_uzivatel))
+ORDER BY id_uzivatel;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D2">D2</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Identifikační čísla a názvy všech inzerátů, které jsou momentálně rezervované.</p>
+<p class="ra">{{rezervace*stav_rezervace*stav(nazev='Probíhá')}[id_inzerat]
+\
+{rezervace*stav_rezervace*stav(nazev!='Probíhá')}[id_inzerat]}*&gt;inzerat[id_inzerat,nazev]</p>
+<p class="sql">(SELECT i.id_inzerat, i.nazev
+ FROM inzerat i
+          JOIN rezervace r USING (id_inzerat)
+          JOIN stav_rezervace s USING (id_rezervace)
+          JOIN stav USING (id_stav)
+ WHERE stav.nazev = 'Probíhá')
+EXCEPT
+(SELECT i.id_inzerat, i.nazev
+ FROM inzerat i
+          JOIN rezervace r USING (id_inzerat)
+          JOIN stav_rezervace s USING (id_rezervace)
+          JOIN stav USING (id_stav)
+ WHERE stav.nazev != 'Probíhá')</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D3">D3</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Jména, příjmení a id těch kupců, kteří mají momentálně zarezervovaný alespoň 1 inzerát.</p>
+<p class="ra">{stav_rezervace(id_stav='1')*&gt;rezervace}[id_inzerat, id_uzivatel]
+\
+{{stav_rezervace(id_stav!='1')*&gt;rezervace}[id_inzerat, id_uzivatel]}*&gt;uzivatelsky_ucet[jmeno, prijmeni, id_uzivatel]</p>
+<p class="sql">SELECT u.jmeno, u.prijmeni, u.id_uzivatel
+FROM uzivatelsky_ucet u
+WHERE EXISTS (SELECT 1
+              FROM rezervace r
+              WHERE u.id_uzivatel = r.id_uzivatel
+                AND NOT EXISTS (SELECT 1
+                                FROM stav_rezervace s
+                                WHERE r.id_rezervace = s.id_rezervace
+                                  AND s.id_stav != '1'))</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D5">D5</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Id těch kupců, kteří mají všechny neprodané inzeráty v oblíbených.</p>
+<p class="ra">oblibene[id_uzivatel, id_inzerat]÷
+{stav_rezervace(id_stav=3)*rezervace!*&gt;inzerat}[id_inzerat]</p>
+<p class="sql">SELECT id_uzivatel
+FROM kupujici k
+WHERE NOT EXISTS (SELECT 1
+                  FROM inzerat i
+                  WHERE NOT EXISTS (SELECT 1
+                                    FROM rezervace r
+                                             JOIN stav_rezervace sr USING (id_rezervace)
+                                    WHERE sr.id_stav = 3
+                                      AND i.id_inzerat = r.id_inzerat)
+                    AND NOT EXISTS (SELECT 1
+                                    FROM oblibene o
+                                    WHERE o.id_uzivatel = k.id_uzivatel AND o.id_inzerat = i.id_inzerat))</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D6">D6</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Id těch prodejců, kteří inzerují pouze pánské oblečení.</p>
+<p class="ra">{kategorie(nazev='Pánské')*&gt;kus_obleceni*&gt;inzerat*&gt;prodejce}
+\
+{kategorie(nazev!='Pánské')*&gt;kus_obleceni*&gt;inzerat*&gt;prodejce}</p>
+<p class="sql">SELECT prodejce.*
+FROM prodejce
+         JOIN inzerat USING (id_uzivatel)
+         JOIN kus_obleceni USING (id_inzerat)
+         JOIN kategorie USING (id_kategorie)
+WHERE kategorie.nazev = 'Pánské'
+EXCEPT
+SELECT prodejce.*
+FROM prodejce
+         JOIN inzerat USING (id_uzivatel)
+         JOIN kus_obleceni USING (id_inzerat)
+         JOIN kategorie USING (id_kategorie)
+WHERE kategorie.nazev != 'Pánské'</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D7">D7</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Id inzerátů, které někdy byly topované.</p>
+<p class="ra">{inzerat[id_inzerat]*topovani}[id_inzerat]</p>
+<p class="sql">SELECT i.id_inzerat
+FROM inzerat i
+WHERE EXISTS (SELECT 1
+              FROM topovani
+              WHERE topovani.id_inzerat = i.id_inzerat)</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D8">D8</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Id, jména a příjmení všech kupujících, kteří mají alespoň 1 inzerát v oblíbených.</p>
+<p class="ra">oblibene*&gt;kupujici*uzivatelsky_ucet[id_uzivatel, jmeno, prijmeni]</p>
+<p class="sql">SELECT u.id_uzivatel, u.jmeno, u.prijmeni
+FROM kupujici
+         JOIN uzivatelsky_ucet u USING (id_uzivatel)
+WHERE EXISTS (SELECT 1
+              FROM oblibene
+                       JOIN kupujici USING (id_uzivatel)
+              WHERE u.id_uzivatel = oblibene.id_uzivatel)</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D9">D9</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Názvy inzerátů, ve kterých není inzerován kus oblečení.</p>
+<p class="ra">{inzerat
+\
+{kus_obleceni*&gt;inzerat}}[nazev]</p>
+<p class="sql">SELECT i.nazev
+FROM inzerat i
+         JOIN (SELECT i.id_inzerat
+               FROM inzerat i
+               EXCEPT
+               SELECT i.id_inzerat
+               FROM inzerat i
+                        JOIN kus_obleceni USING (id_inzerat)) USING (id_inzerat)</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D10">D10</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Jména, příjmení a datum narození těch uživatelů, kteří se jmenují 'Jakub' a byli narozeni před 1.1.2000.</p>
+<p class="ra">{uzivatelsky_ucet(jmeno='Jakub')*uzivatelsky_ucet(datum_narozeni&lt;'2000-01-01')}[jmeno, prijmeni, datum_narozeni]</p>
+<p class="sql">SELECT u.jmeno, u.prijmeni, u.datum_narozeni
+FROM uzivatelsky_ucet u
+WHERE u.jmeno = 'Jakub'
+  AND u.datum_narozeni &lt; '2000-01-01';</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D11">D11</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Id, jméno a příjmení těch prodejců, kteří nikdy nezveřejnili žádný inzerát. </p>
+<p class="ra">inzerat!*&gt;prodejce*uzivatelsky_ucet[id_uzivatel, jmeno, prijmeni]</p>
+<p class="sql">SELECT u.id_uzivatel, u.jmeno, u.prijmeni
+FROM uzivatelsky_ucet u
+         JOIN prodejce USING (id_uzivatel)
+WHERE NOT EXISTS (SELECT 1
+                  FROM inzerat i
+                           JOIN prodejce USING (id_uzivatel)
+                  WHERE u.id_uzivatel = i.id_uzivatel)</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D12">D12</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Ti prodejci (všechny atributy), kteří někdy inzerovali v kategoriích Pánské a Unisex nebo v kategoriích Dámské a Dětské.</p>
+<p class="sql">SELECT *
+FROM uzivatelsky_ucet u
+WHERE EXISTS (SELECT 1
+              FROM inzerat i
+                       JOIN kus_obleceni USING (id_inzerat)
+                       JOIN kategorie k USING (id_kategorie)
+              WHERE u.id_uzivatel = i.id_uzivatel
+                AND k.nazev = 'Pánské')
+INTERSECT
+SELECT *
+FROM uzivatelsky_ucet u
+WHERE EXISTS (SELECT 1
+              FROM inzerat i
+                       JOIN kus_obleceni ko USING (id_inzerat)
+                       JOIN kategorie k ON (ko.id_kategorie = k.id_kategorie)
+              WHERE u.id_uzivatel = i.id_uzivatel
+                AND k.nazev = 'Unisex')
+UNION
+(SELECT *
+ FROM uzivatelsky_ucet u
+ WHERE EXISTS (SELECT 1
+               FROM inzerat i
+                        JOIN kus_obleceni USING (id_inzerat)
+                        JOIN kategorie k USING (id_kategorie)
+               WHERE u.id_uzivatel = i.id_uzivatel
+                 AND k.nazev = 'Dětské')
+ INTERSECT
+ SELECT *
+ FROM uzivatelsky_ucet u
+ WHERE EXISTS (SELECT 1
+               FROM inzerat i
+                        JOIN kus_obleceni ko USING (id_inzerat)
+                        JOIN kategorie k ON (ko.id_kategorie = k.id_kategorie)
+               WHERE u.id_uzivatel = i.id_uzivatel
+                 AND k.nazev = 'Dámské'))</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D13">D13</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Pro každého prodejce (id_uzivatel, jmeno, prijmeni) vypiš kolik celkově inzerátů inzeroval. Výsledek seřaď vzestupně podle počtu inzerovaných inzerátů.</p>
+<p class="sql">SELECT id_uzivatel,
+       jmeno,
+       prijmeni,
+       (SELECT COUNT(*) FROM inzerat i WHERE (i.id_uzivatel = p.id_uzivatel))
+           AS pocet_inzeratu
+FROM prodejce p
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+ORDER BY pocet_inzeratu ASC</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D14">D14</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš kolik kusů oblečení je v kategoriích Pánské, Dámské a Unisex. Uvažuj pouze kategorie, ve kterých je více než 10 výskytů. Výsledek seřaď podle počtu sestupně. </p>
+<p class="sql">SELECT k.nazev AS kategorie, COUNT(*) AS pocet_kusu
+FROM kus_obleceni ko
+         JOIN kategorie k USING (id_kategorie)
+WHERE k.nazev IN ('Pánské', 'Dámské', 'Unisex')
+GROUP BY k.nazev
+HAVING COUNT(*) &gt; 10
+ORDER BY pocet_kusu DESC</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D15">D15</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš 3 nejúspěšnejší prodejce (prodejci s co nejvíce prodanými inzeráty), uvažuj pouze prodejce s alespoň 1 prodejem. (jmeno, prijmeni, id_uzivatel)</p>
+<p class="sql">SELECT jmeno, prijmeni, u.id_uzivatel, COUNT(*) AS pocet_prodanych_inzeratu
+FROM uzivatelsky_ucet u
+         JOIN inzerat USING (id_uzivatel)
+         JOIN rezervace USING (id_inzerat)
+         JOIN stav_rezervace USING (id_rezervace)
+WHERE id_stav = 3
+GROUP BY u.id_uzivatel
+ORDER BY pocet_prodanych_inzeratu DESC
+LIMIT 3;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D16">D16</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš kolik korun se průměrně utratí při nákupu jedné položky.</p>
+<p class="sql">SELECT AVG(cena) AS prumerna_cena
+FROM inzerat
+         JOIN rezervace USING (id_inzerat)
+         JOIN stav_rezervace sr USING (id_rezervace)
+WHERE sr.id_stav = 3</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D17">D17</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš všechny prodejce (id_uzivatel, jmeno, prijmeni) a k nim i jejich inzeráty (id_inzerat, nazev).</p>
+<p class="sql">SELECT id_uzivatel, jmeno, prijmeni, id_inzerat, cena, nazev
+FROM prodejce
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+         LEFT JOIN inzerat USING (id_uzivatel)
+ORDER BY id_uzivatel;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D18">D18</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Kupující (id_uzivatel, jmeno, prijmeni) a ke každému počet dostupných inzerátů (inzeráty bez probíhající nebo dokončené rezervace) (id_inzerat, nazev), které daný kupující nemá v oblíbených.</p>
+<p class="sql">SELECT u.id_uzivatel, u.jmeno, u.prijmeni, i.id_inzerat, i.nazev
+FROM kupujici k
+         JOIN uzivatelsky_ucet u USING (id_uzivatel)
+         CROSS JOIN inzerat i
+WHERE NOT EXISTS (SELECT 1
+                  FROM rezervace r
+                           JOIN stav_rezervace sr USING (id_rezervace)
+                  WHERE sr.id_stav != 1
+                    AND r.id_inzerat = i.id_inzerat)
+EXCEPT
+(SELECT u.id_uzivatel, u.jmeno, u.prijmeni, i.id_inzerat, i.nazev
+ FROM kupujici k
+          JOIN uzivatelsky_ucet u USING (id_uzivatel)
+          JOIN oblibene USING (id_uzivatel)
+          JOIN inzerat i USING (id_inzerat))
+
+ORDER BY id_uzivatel, id_inzerat;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D19">D19</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš 5 nejvíce inzerovaných typů oblečení.</p>
+<p class="sql">SELECT t.nazev AS typ_obleceni, COUNT(*) AS pocet_inzerci
+FROM kus_obleceni
+         JOIN typ_obleceni t USING (id_typ_obleceni)
+GROUP BY t.nazev
+ORDER BY pocet_inzerci DESC
+LIMIT 5;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D20">D20</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Kontrola výsledku dotazu kategorie D1. (Id těch kupců, kteří mají všechny neprodané inzeráty v oblíbených.)</p>
+<p class="sql">SELECT i.*
+FROM inzerat i
+WHERE NOT EXISTS (SELECT 1
+                  FROM rezervace r
+                           JOIN stav_rezervace sr USING (id_rezervace)
+                  WHERE sr.id_stav = 3
+                    AND r.id_inzerat = i.id_inzerat)
+EXCEPT
+SELECT i.*
+FROM inzerat i
+         JOIN oblibene o USING (id_inzerat)
+WHERE o.id_uzivatel = (SELECT id_uzivatel
+                       FROM kupujici k
+                       WHERE NOT EXISTS (SELECT 1
+                                         FROM inzerat i
+                                         WHERE NOT EXISTS (SELECT 1
+                                                           FROM rezervace r
+                                                                    JOIN stav_rezervace sr USING (id_rezervace)
+                                                           WHERE sr.id_stav = 3
+                                                             AND i.id_inzerat = r.id_inzerat)
+                                           AND NOT EXISTS (SELECT 1
+                                                           FROM oblibene o
+                                                           WHERE o.id_uzivatel = k.id_uzivatel
+                                                             AND o.id_inzerat = i.id_inzerat)))</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D21">D21</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Všichni kupující (id_uzivatel, jmeno, prijmeni) a k nim inzeráty (id_inzerat, nazev), které mají v oblíbených.
+Včetně kupujících, kteří nemají žádný inzerát v oblíbených a inzerátů, které nemá žádný kupující v oblíbených.
+Kupující s identifikačním číslem 29 si odstranil vše z oblíbených.</p>
+<p class="sql">BEGIN;
+
+DELETE
+FROM oblibene o
+WHERE EXISTS (SELECT 1 FROM kupujici k WHERE k.id_uzivatel = o.id_uzivatel AND k.id_uzivatel = 29);
+
+SELECT u.id_uzivatel, u.jmeno, u.prijmeni, i.id_inzerat, i.nazev
+FROM oblibene
+         FULL JOIN kupujici k USING (id_uzivatel)
+         JOIN uzivatelsky_ucet u USING (id_uzivatel)
+         FULL JOIN inzerat i USING (id_inzerat);
+
+
+ROLLBACK;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D22">D22</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vytvoř pohled drahých inzerátů (inzeráty s cenou výšší než 500 Kč). Z nich vypiš opravdu drahé inzeráty (inzeráty s cenou vyšší než 1000 Kč).</p>
+<p class="sql">CREATE OR REPLACE VIEW drahe_inzeraty AS
+SELECT id_inzerat, nazev, cena
+FROM inzerat
+WHERE cena &gt; 500;
+
+SELECT *
+FROM drahe_inzeraty
+WHERE cena &gt; 1000;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D23">D23</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Všichni Tomášové a Zdeňkové se rozhodli zlevnit svoje aktuálně dostupné inzeráty o 50%!</p>
+<p class="sql">BEGIN;
+
+SELECT i.*
+FROM inzerat i
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+WHERE jmeno = 'Filip'
+   OR jmeno = 'Zdeněk'
+ORDER BY cena;
+
+UPDATE inzerat
+SET cena = cena * 0.5
+WHERE id_inzerat IN (SELECT DISTINCT id_inzerat
+                     FROM inzerat i
+                     WHERE EXISTS (SELECT 1
+                                   FROM uzivatelsky_ucet u
+                                            JOIN kupujici USING (id_uzivatel)
+                                   WHERE u.jmeno = 'Zdeněk'
+                                      OR u.jmeno = 'Filip'
+                                       AND i.id_uzivatel = u.id_uzivatel)
+                       AND NOT EXISTS (SELECT 1
+                                       FROM rezervace r
+                                                JOIN stav_rezervace USING (id_rezervace)
+                                       WHERE (id_stav = 3 OR id_stav = 1)
+                                         AND r.id_inzerat = i.id_inzerat));
+
+SELECT i.*
+FROM inzerat i
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+WHERE jmeno = 'Filip'
+   OR jmeno = 'Zdeněk'
+ORDER BY cena;
+
+ROLLBACK;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D24">D24</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Právě dnes nakoupili všichni prodejci narozeni po roce 1980 7denní topovaní pro své dostupné inzeráty.</p>
+<p class="sql">BEGIN;
+
+SELECT *
+FROM topovani
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+WHERE datum_narozeni &gt;= '01-01-1981'
+ORDER BY datum_od DESC;
+
+INSERT INTO topovani (id_uzivatel, id_inzerat, datum_od, datum_do)
+SELECT id_uzivatel, id_inzerat, CAST(NOW() AS date) AS datum_od, CAST(NOW() AS date) + 7 AS datum_do
+FROM uzivatelsky_ucet
+         JOIN inzerat i USING (id_uzivatel)
+WHERE NOT EXISTS (SELECT 1
+                  FROM rezervace r
+                           JOIN stav_rezervace sr USING (id_rezervace)
+                  WHERE (id_stav = 3 OR id_stav = 1)
+                    AND i.id_inzerat = r.id_inzerat)
+  AND datum_narozeni &gt;= '01-01-1981';
+
+
+SELECT *
+FROM topovani
+         JOIN uzivatelsky_ucet USING (id_uzivatel)
+WHERE datum_narozeni &gt;= '01-01-1981'
+ORDER BY datum_od DESC;
+
+
+ROLLBACK;</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D25">D25</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš všechny inzerované kusy oblečení, které mají uvedenou kondici horší než 5/10. Seřaď od nejhorší kondice. (nazev, kondice)</p>
+<p class="sql">SELECT nazev, kondice
+FROM inzerat
+         JOIN kus_obleceni USING (id_inzerat)
+WHERE kondice &lt; 5
+ORDER BY kondice</p>
+</li>
+<li>
+<p> Kód dotazu: <b><a name="D26">D26</a></b><a href="#tabulka_pokryti"> [Tabulka pokryti kategorií SQL příkazů]</a></p>
+<p>Vypiš všechny neaktivní uživatele (uživatelé, kteří nikdy nic neinzerovali, netopovali, nerezervovali a ani si nepřidali žádný inzerát do oblíbených).</p>
+<p class="sql">SELECT *
+FROM uzivatelsky_ucet
+EXCEPT
+SELECT u.*
+FROM uzivatelsky_ucet u
+         JOIN rezervace USING (id_uzivatel)
+EXCEPT
+SELECT u.*
+FROM uzivatelsky_ucet u
+         JOIN inzerat USING (id_uzivatel)
+EXCEPT
+SELECT u.*
+FROM uzivatelsky_ucet u
+         JOIN topovani USING (id_uzivatel)
+EXCEPT
+SELECT u.*
+FROM uzivatelsky_ucet u
+         JOIN oblibene USING (id_uzivatel)</p>
+</li>
+</ol>
+<h2><a name="tabulka_pokryti"> Tabulka pokrytí kategorií SQL příkazů </a></h2>
+<table><tbody>
+<tr>
+<th> Kategorie </th>
+<th> Kódy porývajících dotazů</th>
+<th> Charekteristika kategorie příkazu</th>
+</tr>
+<tr>
+<td>A</td>
+<td>
+<a href="#D1">D1</a> <a href="#D8">D8</a> <a href="#D9">D9</a> <a href="#D11">D11</a> <a href="#D12">D12</a> <a href="#D13">D13</a> <a href="#D14">D14</a> <a href="#D15">D15</a> <a href="#D16">D16</a> <a href="#D17">D17</a> <a href="#D18">D18</a> <a href="#D19">D19</a> <a href="#D21">D21</a> <a href="#D23">D23</a> <a href="#D24">D24</a> <a href="#D25">D25</a> <a href="#D26">D26</a> </td>
+<td>A - Pozitivní dotaz nad spojením alespoň dvou tabulek</td>
+</tr>
+<tr>
+<td>AR</td>
+<td>
+<a href="#D1">D1</a> <a href="#D8">D8</a> <a href="#D9">D9</a> <a href="#D11">D11</a> </td>
+<td>A (RA) - Pozitivní dotaz nad spojením alespoň dvou tabulek</td>
+</tr>
+<tr>
+<td>B</td>
+<td>
+<a href="#D11">D11</a> </td>
+<td>B - Negativní dotaz nad spojením alespoň dvou tabulek</td>
+</tr>
+<tr>
+<td>C</td>
+<td>
+<a href="#D6">D6</a> </td>
+<td>C - Vyber ty, kteří mají vztah POUZE k ...</td>
+</tr>
+<tr>
+<td>D1</td>
+<td>
+<a href="#D5">D5</a> </td>
+<td>D1 - Vyber ty, kteří/které jsou ve vztahu se všemi - dotaz s univerzální kvantifikací</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>
+<a href="#D20">D20</a> </td>
+<td>D2 - Kontrola výsledku dotazu z kategorie D1</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>
+<a href="#D12">D12</a> </td>
+<td>F1 - JOIN ON</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>
+<a href="#D1">D1</a> <a href="#D2">D2</a> <a href="#D5">D5</a> <a href="#D6">D6</a> <a href="#D8">D8</a> <a href="#D9">D9</a> <a href="#D11">D11</a> <a href="#D12">D12</a> <a href="#D13">D13</a> <a href="#D14">D14</a> <a href="#D15">D15</a> <a href="#D16">D16</a> <a href="#D17">D17</a> <a href="#D18">D18</a> <a href="#D19">D19</a> <a href="#D20">D20</a> <a href="#D21">D21</a> <a href="#D23">D23</a> <a href="#D24">D24</a> <a href="#D25">D25</a> <a href="#D26">D26</a> </td>
+<td>F2 - NATURAL JOIN|JOIN USING</td>
+</tr>
+<tr>
+<td>F2R</td>
+<td>
+<a href="#D1">D1</a> <a href="#D2">D2</a> <a href="#D5">D5</a> <a href="#D6">D6</a> <a href="#D8">D8</a> <a href="#D9">D9</a> <a href="#D11">D11</a> </td>
+<td>F2 (RA) - NATURAL JOIN|JOIN USING</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>
+<a href="#D18">D18</a> </td>
+<td>F3 - CROSS JOIN</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>
+<a href="#D17">D17</a> </td>
+<td>F4 - LEFT|RIGHT OUTER JOIN</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>
+<a href="#D21">D21</a> </td>
+<td>F5 - FULL (OUTER) JOIN</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>
+<a href="#D1">D1</a> <a href="#D3">D3</a> <a href="#D5">D5</a> <a href="#D7">D7</a> <a href="#D8">D8</a> <a href="#D11">D11</a> <a href="#D12">D12</a> <a href="#D18">D18</a> <a href="#D20">D20</a> <a href="#D21">D21</a> <a href="#D23">D23</a> <a href="#D24">D24</a> </td>
+<td>G1 - Vnořený dotaz v klauzuli WHERE</td>
+</tr>
+<tr>
+<td>G1R</td>
+<td>
+<a href="#D1">D1</a> <a href="#D3">D3</a> <a href="#D5">D5</a> <a href="#D7">D7</a> <a href="#D8">D8</a> <a href="#D11">D11</a> </td>
+<td>G1 (RA) - Vnořený dotaz v klauzuli WHERE</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>
+<a href="#D9">D9</a> </td>
+<td>G2 - Vnořený dotaz v klauzuli FROM</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>
+<a href="#D13">D13</a> </td>
+<td>G3 - Vnořený dotaz v klauzuli SELECT</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>
+<a href="#D1">D1</a> <a href="#D3">D3</a> <a href="#D5">D5</a> <a href="#D7">D7</a> <a href="#D8">D8</a> <a href="#D11">D11</a> <a href="#D12">D12</a> <a href="#D18">D18</a> <a href="#D20">D20</a> <a href="#D21">D21</a> <a href="#D23">D23</a> <a href="#D24">D24</a> </td>
+<td>G4 - Vztažený vnořený dotaz (EXISTS, NOT EXISTS)</td>
+</tr>
+<tr>
+<td>G4R</td>
+<td>
+<a href="#D1">D1</a> <a href="#D3">D3</a> <a href="#D5">D5</a> <a href="#D7">D7</a> <a href="#D8">D8</a> <a href="#D11">D11</a> </td>
+<td>G4 (RA) - Vztažený vnořený dotaz (EXISTS, NOT EXISTS)</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>
+<a href="#D12">D12</a> </td>
+<td>H1 - Množinové sjednocení - UNION</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>
+<a href="#D2">D2</a> <a href="#D6">D6</a> <a href="#D9">D9</a> <a href="#D18">D18</a> <a href="#D20">D20</a> <a href="#D26">D26</a> </td>
+<td>H2 - Množinový rozdíl - MINUS nebo EXCEPT</td>
+</tr>
+<tr>
+<td>H2R</td>
+<td>
+<a href="#D2">D2</a> <a href="#D6">D6</a> <a href="#D9">D9</a> </td>
+<td>H2 (RA) - Množinový rozdíl - MINUS nebo EXCEPT</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>
+<a href="#D12">D12</a> </td>
+<td>H3 - Množinový průnik - INTERSECT</td>
+</tr>
+<tr>
+<td>I1</td>
+<td>
+<a href="#D13">D13</a> <a href="#D14">D14</a> <a href="#D15">D15</a> <a href="#D16">D16</a> <a href="#D19">D19</a> </td>
+<td>I1 - Agregační funkce (count|sum|min|max|avg)</td>
+</tr>
+<tr>
+<td>I2</td>
+<td>
+<a href="#D14">D14</a> <a href="#D15">D15</a> <a href="#D19">D19</a> </td>
+<td>I2 - Agregační funkce nad seskupenými řádky - GROUP BY (HAVING)</td>
+</tr>
+<tr>
+<td>J</td>
+<td>
+<a href="#D1">D1</a> </td>
+<td>J - Stejný dotaz ve třech různých formulacích SQL</td>
+</tr>
+<tr>
+<td>K</td>
+<td>
+<a href="#D14">D14</a> </td>
+<td>K - Všechny klauzule v 1 dotazu - SELECT FROM WHERE GROUP BY HAVING ORDER BY</td>
+</tr>
+<tr>
+<td>L</td>
+<td>
+<a href="#D22">D22</a> </td>
+<td>L - VIEW</td>
+</tr>
+<tr>
+<td>M</td>
+<td>
+<a href="#D22">D22</a> </td>
+<td>M - Dotaz nad pohledem</td>
+</tr>
+<tr>
+<td>N</td>
+<td>
+<a href="#D24">D24</a> </td>
+<td>N - INSERT, který vloží do některé tabulky množinu řádků, které jsou vybrány dotazem z vybraných tabulek (příkaz INSERT, ve kterém je klauzule VALUES nahrazena vnořeným poddotazem.</td>
+</tr>
+<tr>
+<td>O</td>
+<td>
+<a href="#D23">D23</a> </td>
+<td>O - UPDATE s vnořeným SELECT příkazem</td>
+</tr>
+<tr>
+<td>P</td>
+<td>
+<a href="#D21">D21</a> </td>
+<td>P - DELETE s vnořeným SELECT příkazem</td>
+</tr>
+</tbody></table>
+<h2>Scripts</h2>
+<p>
+                <a href="./create.sql">create.sql</a>
+            </p>
+<p>
+                <a href="./insert.sql">insert.sql</a>
+            </p>
+<h2>Závěr</h2>
+<p>Na semestrální práci se mi pracovalo dobře. Zpětně mohu říci, že jsem si opravdu cenil zpětné vazby v kontrolních bodech a také samotné platformy DBS. Nejtěžší pro mě byl výběr vhodného tématu a návrh databáze. Naopak nejvíce mě bavilo psaní dotazů v RA a SQL.  Myslím si, že mi tvorba semestrální práce hodně dala a byla přínosnou zkušeností.</p>
+<h2>Zdroje</h2>
+<p>[1] HUNKA, Jiří. Videa k dotazům nad databází. Online. Dostupné z: https://www.youtube.com/@jirkahunka. [cit. 2025-05-01].</p>
+<p>[2] FIT ČVUT. Stránky předmětu BI-DBS. Online. Dostupné z: https://courses.fit.cvut.cz/BI-DBS/index.html. [cit. 2025-05-01].</p>
+<p>[3] OPENAI. ChatGPT. Online. Dostupné z: https://chatgpt.com/. [cit. 2025-05-01].</p>
+<p>[4] DEEPSEEK. DeepSeek AI. Online. Dostupné z: https://chat.deepseek.com/. [cit. 2025-05-01].</p>
+<p>[5] HUNKA, Jiří. Ukázková semestrální práce. Online. Dostupné z: https://users.fit.cvut.cz/~hunkajir/dbs2/main.xml. [cit. 2025-05-01].</p>
+<p>[6] MOCKAROO Inc. Mockaroo. Online. 2024. Dostupné z: https://www.mockaroo.com/. [cit. 2025-05-01].</p>
+</body>
+</html>
